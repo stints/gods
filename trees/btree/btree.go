@@ -4,9 +4,9 @@
 
 // Package btree implements a B tree.
 //
-// According to Knuth's definition, a B-tree of order m is a tree which satisfies the following properties:
-// - Every node has at most m children.
-// - Every non-leaf node (except root) has at least ⌈m/2⌉ children.
+// According to Knuth's definition, a B-tree of order M is a tree which satisfies the following properties:
+// - Every node has at most M children.
+// - Every non-leaf node (except root) has at least ⌈M/2⌉ children.
 // - The root has at least two children if it is not a leaf node.
 // - A non-leaf node with k children contains k−1 keys.
 // - All leaves appear in the same level
@@ -32,8 +32,8 @@ func assertTreeImplementation() {
 type Tree struct {
 	Root       *Node            // Root node
 	Comparator utils.Comparator // Key comparator
-	size       int              // Total number of keys in the tree
-	m          int              // order (maximum number of children)
+	Size       int              // Total number of keys in the tree
+	M          int              // order (maximum number of children)
 }
 
 // Node is a single element within the tree
@@ -54,7 +54,7 @@ func NewWith(order int, comparator utils.Comparator) *Tree {
 	if order < 3 {
 		panic("Invalid order, should be at least 3")
 	}
-	return &Tree{m: order, Comparator: comparator}
+	return &Tree{M: order, Comparator: comparator}
 }
 
 // NewWithIntComparator instantiates a B-tree with the order (maximum number of children) and the IntComparator, i.e. keys are of type int.
@@ -75,12 +75,12 @@ func (tree *Tree) Put(key interface{}, value interface{}) {
 
 	if tree.Root == nil {
 		tree.Root = &Node{Entries: []*Entry{entry}, Children: []*Node{}}
-		tree.size++
+		tree.Size++
 		return
 	}
 
 	if tree.insert(tree.Root, entry) {
-		tree.size++
+		tree.Size++
 	}
 }
 
@@ -101,23 +101,23 @@ func (tree *Tree) Remove(key interface{}) {
 	node, index, found := tree.searchRecursively(tree.Root, key)
 	if found {
 		tree.delete(node, index)
-		tree.size--
+		tree.Size--
 	}
 }
 
 // Empty returns true if tree does not contain any nodes
 func (tree *Tree) Empty() bool {
-	return tree.size == 0
+	return tree.Size == 0
 }
 
 // Size returns number of nodes in the tree.
 func (tree *Tree) Size() int {
-	return tree.size
+	return tree.Size
 }
 
 // Keys returns all keys in-order
 func (tree *Tree) Keys() []interface{} {
-	keys := make([]interface{}, tree.size)
+	keys := make([]interface{}, tree.Size)
 	it := tree.Iterator()
 	for i := 0; it.Next(); i++ {
 		keys[i] = it.Key()
@@ -127,7 +127,7 @@ func (tree *Tree) Keys() []interface{} {
 
 // Values returns all values in-order based on the key.
 func (tree *Tree) Values() []interface{} {
-	values := make([]interface{}, tree.size)
+	values := make([]interface{}, tree.Size)
 	it := tree.Iterator()
 	for i := 0; it.Next(); i++ {
 		values[i] = it.Value()
@@ -138,7 +138,7 @@ func (tree *Tree) Values() []interface{} {
 // Clear removes all nodes from the tree.
 func (tree *Tree) Clear() {
 	tree.Root = nil
-	tree.size = 0
+	tree.Size = 0
 }
 
 // Height returns the height of the tree.
@@ -241,11 +241,11 @@ func (tree *Tree) shouldSplit(node *Node) bool {
 }
 
 func (tree *Tree) maxChildren() int {
-	return tree.m
+	return tree.M
 }
 
 func (tree *Tree) minChildren() int {
-	return (tree.m + 1) / 2 // ceil(m/2)
+	return (tree.M + 1) / 2 // ceil(M/2)
 }
 
 func (tree *Tree) maxEntries() int {
@@ -257,7 +257,7 @@ func (tree *Tree) minEntries() int {
 }
 
 func (tree *Tree) middle() int {
-	return (tree.m - 1) / 2 // "-1" to favor right nodes to have more keys when splitting
+	return (tree.M - 1) / 2 // "-1" to favor right nodes to have more keys when splitting
 }
 
 // search searches only within the single node among its entries
