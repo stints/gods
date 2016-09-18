@@ -32,7 +32,7 @@ func assertTreeImplementation() {
 type Tree struct {
 	Root       *Node            // Root node
 	Comparator utils.Comparator // Key comparator
-	Size       int              // Total number of keys in the tree
+	S       int              // Total number of keys in the tree
 	M          int              // order (maximum number of children)
 }
 
@@ -75,12 +75,12 @@ func (tree *Tree) Put(key interface{}, value interface{}) {
 
 	if tree.Root == nil {
 		tree.Root = &Node{Entries: []*Entry{entry}, Children: []*Node{}}
-		tree.Size++
+		tree.S++
 		return
 	}
 
 	if tree.insert(tree.Root, entry) {
-		tree.Size++
+		tree.S++
 	}
 }
 
@@ -101,23 +101,23 @@ func (tree *Tree) Remove(key interface{}) {
 	node, index, found := tree.searchRecursively(tree.Root, key)
 	if found {
 		tree.delete(node, index)
-		tree.Size--
+		tree.S--
 	}
 }
 
 // Empty returns true if tree does not contain any nodes
 func (tree *Tree) Empty() bool {
-	return tree.Size == 0
+	return tree.S == 0
 }
 
-// Size returns number of nodes in the tree.
+// S returns number of nodes in the tree.
 func (tree *Tree) Size() int {
-	return tree.Size
+	return tree.S
 }
 
 // Keys returns all keys in-order
 func (tree *Tree) Keys() []interface{} {
-	keys := make([]interface{}, tree.Size)
+	keys := make([]interface{}, tree.S)
 	it := tree.Iterator()
 	for i := 0; it.Next(); i++ {
 		keys[i] = it.Key()
@@ -127,7 +127,7 @@ func (tree *Tree) Keys() []interface{} {
 
 // Values returns all values in-order based on the key.
 func (tree *Tree) Values() []interface{} {
-	values := make([]interface{}, tree.Size)
+	values := make([]interface{}, tree.S)
 	it := tree.Iterator()
 	for i := 0; it.Next(); i++ {
 		values[i] = it.Value()
@@ -138,7 +138,7 @@ func (tree *Tree) Values() []interface{} {
 // Clear removes all nodes from the tree.
 func (tree *Tree) Clear() {
 	tree.Root = nil
-	tree.Size = 0
+	tree.S = 0
 }
 
 // Height returns the height of the tree.
